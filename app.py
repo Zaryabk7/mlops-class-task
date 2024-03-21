@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 import joblib
 
 # Load model
-model = joblib.load("house_price_model.pkl")
+model = joblib.load("model.pkl")
 
 app = Flask(__name__)
 

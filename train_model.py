@@ -1,27 +1,37 @@
+# Step 1: Train a machine learning model
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_squared_error, r2_score
+import joblib
 
-# Load data
-data = pd.read_csv("california_housing_prices.csv")
+# Load the dataset
+df = pd.read_csv("housing.csv")
 
-# Separate features and target variable
-X = data.drop("median_house_value", axis=1)
-y = data["median_house_value"]
+# One-hot encode the 'ocean_proximity' column
+df = pd.get_dummies(df, columns=['ocean_proximity'], drop_first=True)
 
-# Train-test split
+# Split features and target variable
+X = df.drop("median_house_value", axis=1)
+y = df["median_house_value"]
+
+# Split data into train and test sets
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# Train model
-model = LinearRegression()
+# Train a RandomForestRegressor model
+model = RandomForestRegressor(n_estimators=100, random_state=42)
 model.fit(X_train, y_train)
 
-# Save model
-import joblib
-joblib.dump(model, "house_price_model.pkl")
+# Make predictions
+y_pred = model.predict(X_test)
 
-# Print some evaluation metrics (optional)
-from sklearn.metrics import mean_squared_error
-predictions = model.predict(X_test)
-mse = mean_squared_error(y_test, predictions)
-print(f"Mean Squared Error: {mse:.2f}")
+# Calculate RMSE
+rmse = mean_squared_error(y_test, y_pred, squared=False)
+print(f"Root Mean Squared Error (RMSE): {rmse}")
+
+# Calculate R^2 score
+r2 = r2_score(y_test, y_pred)
+print(f"R^2 Score: {r2}")
+
+# Save the model as a .pkl file
+joblib.dump(model, 'model.pkl')
